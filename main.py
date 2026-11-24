@@ -49,6 +49,18 @@ def _validate(text: str) -> None:
         raise ValueError("TEXT must not contain control characters")
 
 
+def _write_entry() -> None:
+    """Write TEXT verbatim to $OUTPUT_DIR/entry.txt (no trailing newline).
+
+    Separated from main() so the validate-then-write order is explicit
+    and testable: main() validates first, and only a valid TEXT ever
+    reaches this writer.
+    """
+    output_dir = _output_dir()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "entry.txt").write_bytes(TEXT.encode("utf-8"))
+
+
 def main() -> None:
     """Validate TEXT, then write it verbatim to $OUTPUT_DIR/entry.txt.
 
@@ -61,9 +73,7 @@ def main() -> None:
     except ValueError as exc:
         print(f"invalid entry text: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
-    output_dir = _output_dir()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "entry.txt").write_bytes(TEXT.encode("utf-8"))
+    _write_entry()
 
 
 if __name__ == "__main__":
